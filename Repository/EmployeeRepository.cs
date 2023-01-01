@@ -12,7 +12,7 @@ namespace Repository
         
 
         public Employee GetEmployee(Guid companyid, Guid id, bool trackChanges) => 
-            FindByCondition(e => e.CompanyId.Equals(companyid) && e.Id.Equals(id), false).SingleOrDefault();
+            FindByCondition(e => e.CompanyId.Equals(companyid) && e.Id.Equals(id), trackChanges).SingleOrDefault();
 
         public IEnumerable<Employee> GetEmployees(Guid companyId, bool trackChanges) => 
             FindByCondition(e => e.CompanyId.Equals(companyId), trackChanges)
