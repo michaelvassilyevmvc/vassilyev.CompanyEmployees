@@ -4,6 +4,8 @@ using NLog;
 using Contracts;
 using CompanyEmployees.WebApi.Extensions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Formatters;
+using Microsoft.Extensions.Options;
 
 var builder = WebApplication.CreateBuilder(args);
 LogManager.LoadConfiguration(configFile: string.Concat(str0: Directory.GetCurrentDirectory(), "/nlog.config"));
@@ -27,6 +29,7 @@ builder.Services.AddControllers(config =>
 {
     config.RespectBrowserAcceptHeader= true;
     config.ReturnHttpNotAcceptable = true;
+    config.InputFormatters.Insert(0, GetJsonPatchInputFormatter());
 }).AddXmlDataContractSerializerFormatters()
     .AddCustomCsvFormatter()
     .AddApplicationPart(typeof(CompanyEmployee.Presentation.AssemblyReference).Assembly);
@@ -55,3 +58,16 @@ app.UseAuthorization();
 app.MapControllers();
 
 app.Run();
+
+NewtonsoftJsonPatchInputFormatter GetJsonPatchInputFormatter() =>
+    new ServiceCollection()
+    .AddLogging()
+    .AddMvc()
+    .AddNewtonsoftJson()
+    .Services
+    .BuildServiceProvider()
+    .GetRequiredService<IOptions<MvcOptions>>()
+    .Value
+    .InputFormatters
+    .OfType<NewtonsoftJsonPatchInputFormatter>()
+    .First();
